@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redyum - E-Pin & Oyun Pazarı Yönetici Paneli</title>
+  
+  <style>
+    :root {
+      --bg-dark: #0d0d12;
+      --card-bg: #161622;
+      --card-hover: #1f1f30;
+      --sidebar-bg: #11111a;
+      --border-color: #272738;
+      
+      --primary: #8b5cf6;
+      --primary-hover: #7c3aed;
+      --primary-glow: rgba(139, 92, 246, 0.25);
+      
+      --secondary: #10b981;
+      --secondary-hover: #059669;
+      --secondary-glow: rgba(16, 185, 129, 0.2);
+      
+      --warning: #f59e0b;
+      --accent-red: #ef4444;
+      
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    .login-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(13, 13, 18, 0.92);
+      backdrop-filter: blur(16px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      padding: 1rem;
+    }
+
+    .login-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 30px var(--primary-glow);
+      border-radius: 16px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      position: relative;
+    }
+
+    .login-title {
+      font-size: 2.2rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.3rem;
+      letter-spacing: 1px;
+    }
+
+    .login-subtitle {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+    }
+
+    .shake {
+      animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
+    @keyframes shake {
+      10%, 90% { transform: translate3d(-1px, 0, 0); }
+      20%, 80% { transform: translate3d(2px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+      40%, 60% { transform: translate3d(4px, 0, 0); }
+    }
+
+    .error-alert {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid var(--accent-red);
+      color: #fca5a5;
+      padding: 0.75rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      margin-bottom: 1.2rem;
+      display: none;
+    }
+
+    .form-group {
+      margin-bottom: 1.2rem;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+      font-weight: 600;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      background: #0a0a0f;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 10px var(--primary-glow);
+    }
+
+    .btn {
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      border: none;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      box-shadow: 0 0 20px var(--primary-glow);
+    }
+
+    .btn-secondary {
+      background: var(--secondary);
+      color: #000;
+    }
+
+    .btn-secondary:hover {
+      background: var(--secondary-hover);
+      box-shadow: 0 0 20px var(--secondary-glow);
+    }
+
+    .btn-danger {
+      background: var(--accent-red);
+      color: #fff;
+    }
+
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+
+    .btn-warning {
+      background: var(--warning);
+      color: #000;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+    }
+
+    .btn-outline:hover {
+      background: var(--card-hover);
+      border-color: var(--primary);
+    }
+
+    #appWrapper {
+      display: flex;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    sidebar {
+      width: 260px;
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem;
+      gap: 2rem;
+      flex-shrink: 0;
+    }
+
+    .brand {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      letter-spacing: 0.5px;
+    }
+
+    .brand span {
+      color: var(--secondary);
+      font-size: 0.7rem;
+      background: rgba(16, 185, 129, 0.15);
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--secondary);
+    }
+
+    .nav-menu {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .nav-item {
+      padding: 0.85rem 1rem;
+      border-radius: 10px;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      transition: all 0.2s ease;
+    }
+
+    .nav-item:hover {
+      background: var(--card-hover);
+      color: #fff;
+    }
+
+    .nav-item.active {
+      background: linear-gradient(90deg, rgba(139, 92, 246, 0.2), transparent);
+      color: #fff;
+      border-left: 4px solid var(--primary);
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    header {
+      background: var(--sidebar-bg);
+      border-bottom: 1px solid var(--border-color);
+      padding: 1.2rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .admin-profile {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+    }
+
+    .badge-admin {
+      background: rgba(139, 92, 246, 0.15);
+      color: var(--primary);
+      padding: 0.4rem 0.9rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border: 1px solid var(--primary);
+    }
+
+    .content-area {
+      padding: 2rem;
+      flex: 1;
+    }
+
+    .section-tab {
+      display: none;
+    }
+
+    .section-tab.active {
+      display: block;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 1.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      transition: transform 0.2s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .stat-label {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .stat-change {
+      font-size: 0.78rem;
+      color: var(--secondary);
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .data-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .data-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.4rem;
+    }
+
+    .data-card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th {
+      background: #0d0d14;
+      color: var(--text-muted);
+      padding: 0.9rem 1rem;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    td {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 0.9rem;
+      color: #e5e7eb;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .status-badge {
+      padding: 0.3rem 0.7rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      display: inline-block;
+    }
+
+    .status-active, .status-approved { background: rgba(16, 185, 129, 0.15); color: var(--secondary); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .status-pending { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .status-banned, .status-rejected { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 5000;
+      padding: 1rem;
+    }
+
+    .modal-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      width: 100%;
+      max-width: 500px;
+      padding: 2rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-close {
+      cursor: pointer;
+      font-size: 1.5rem;
+      color: var(--text-muted);
+      transition: color 0.2s;
+    }
+
+    .modal-close:hover {
+      color: #fff;
+    }
+
+    .action-btn-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    #toastContainer {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast {
+      background: var(--card-bg);
+      border-left: 4px solid var(--primary);
+      color: #fff;
+      padding: 0.9rem 1.4rem;
+      border-radius: 8px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+      font-size: 0.9rem;
+      font-weight: 600;
+      animation: slideIn 0.3s forwards;
+    }
+
+    .toast.success { border-color: var(--secondary); }
+    .toast.error { border-color: var(--accent-red); }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-overlay" id="loginOverlay">
+    <div class="login-box" id="loginBox">
+      <div class="login-title">REDYUM</div>
+      <div class="login-subtitle">E-Pin & Yönetici Paneli Girişi</div>
+      
+      <div class="error-alert" id="loginError">
+        ⚠️ Şifre hatalı! Lütfen tekrar deneyin.
+      </div>
+
+      <form onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label>Yönetici Şifresi</label>
+          <input type="password" id="adminPasswordInput" class="form-control" placeholder="••••••••" required autofocus>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">Sisteme Giriş Yap</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="appWrapper" style="display: none;">
+    <sidebar>
+      <div class="brand">
+        REDYUM <span>PANEL</span>
+      </div>
+      <ul class="nav-menu">
+        <li class="nav-item active" onclick="switchTab('dashboardTab', this)">📊 Genel Bakış</li>
+        <li class="nav-item" onclick="switchTab('listingsTab', this)">🎮 İlan Yönetimi</li>
+        <li class="nav-item" onclick="switchTab('balanceTab', this)">💳 Bakiye & Talepler</li>
+        <li class="nav-item" onclick="switchTab('ordersTab', this)">🛒 Sipariş Geçmişi</li>
+        <li class="nav-item" onclick="switchTab('settingsTab', this)">⚙️ Sistem Ayarları</li>
+      </ul>
+    </sidebar>
+
+    <main>
+      <header>
+        <div class="header-title" id="pageTitle">Genel Bakış & İstatistikler</div>
+        <div class="admin-profile">
+          <span class="badge-admin">Kurucu / Admin</span>
+          <button class="btn btn-outline" style="padding: 0.4rem 0.9rem; font-size: 0.85rem;" onclick="handleLogout()">🚪 Çıkış Yap</button>
+        </div>
+      </header>
+
+      <div class="content-area">
+        
+        <!-- DASHBOARD TAB -->
+        <div class="section-tab active" id="dashboardTab">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-label">Toplam Ciro</span>
+              <span class="stat-value" id="statRevenue">₺184,900</span>
+              <span class="stat-change">▲ %24 bu ay</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Aktif İlan Sayısı</span>
+              <span class="stat-value" id="statListingsCount">0</span>
+              <span class="stat-change">Canlı pazaryeri</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Bekleyen İlan Onayları</span>
+              <span class="stat-value" style="color: var(--warning);" id="statPendingCount">0</span>
+              <span class="stat-change" style="color: var(--warning);">Inceleme bekliyor</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Toplam Kullanıcı</span>
+              <span class="stat-value" id="statUsersCount">0</span>
+              <span class="stat-change">▲ 182 yeni kayıt</span>
+            </div>
+          </div>
+
+          <div class="data-card">
+            <div class="data-card-header">
+              <div class="data-card-title">Son Sistem İşlem Logları</div>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>İşlem Kodu</th>
+                    <th>Kullanıcı / Müşteri</th>
+                    <th>Detay / Ürün</th>
+                    <th>Tutar</th>
+                    <th>Tarih</th>
+                    <th>Durum</th>
+                  </tr>
+                </thead>
+                <tbody id="logsTable">
+                  <!-- JS Populate -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- LISTINGS TAB -->
+        <div class="section-tab" id="listingsTab">
+          <div class="data-card">
+            <div class="data-card-header">
+              <div class="data-card-title">Pazaryeri İlan Listesi</div>
+              <button class="btn btn-primary" onclick="openModal('addListingModal')">+ Yeni İlan Ekle</button>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>İlan Başlığı</th>
+                    <th>Kategori</th>
+                    <th>Fiyat (TL)</th>
+                    <th>Satıcı</th>
+                    <th>Durum</th>
+                    <th>İşlemler</th>
+                  </tr>
+                </thead>
+                <tbody id="listingsTable">
+                  <!-- JS Populate -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- BALANCE & WITHDRAWALS TAB -->
+        <div class="section-tab" id="balanceTab">
+          <div class="data-card">
+            <div class="data-card-header">
+              <div class="data-card-title">Kullanıcı Bakiye Denetimi</div>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Kullanıcı Adı</th>
+                    <th>E-Posta</th>
+                    <th>Mevcut Bakiye</th>
+                    <th>Rol</th>
+                    <th>İşlemler</th>
+                  </tr>
+                </thead>
+                <tbody id="usersTable">
+                  <!-- JS Populate -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="data-card">
+            <div class="data-card-header">
+              <div class="data-card-title">Para Çekme Talepleri</div>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Talep ID</th>
+                    <th>Kullanıcı</th>
+                    <th>IBAN</th>
+                    <th>Çekim Tutarı</th>
+                    <th>Durum</th>
+                    <th>İşlem</th>
+                  </tr>
+                </thead>
+                <tbody id="withdrawalsTable">
+                  <!-- JS Populate -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ORDERS TAB -->
+        <div class="section-tab" id="ordersTab">
+          <div class="data-card">
+            <div class="data-card-header">
+              <div class="data-card-title">E-Pin & Dijital Kod Siparişleri</div>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Sipariş ID</th>
+                    <th>Alıcı</th>
+                    <th>Satın Alınan Ürün</th>
+                    <th>Teslim Edilen Kod / Stok</th>
+                    <th>Tutar</th>
+                    <th>Teslimat</th>
+                  </tr>
+                </thead>
+                <tbody id="ordersTable">
+                  <!-- JS Populate -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- SETTINGS TAB -->
+        <div class="section-tab" id="settingsTab">
+          <div class="data-card">
+            <div class="data-card-header">
+              <div class="data-card-title">Sistem & Pazar Yeri Konfigürasyonu</div>
+            </div>
+            <form onsubmit="saveSettings(event)" style="max-width: 550px;">
+              <div class="form-group">
+                <label>Site Başlığı</label>
+                <input type="text" id="siteTitleInput" class="form-control" value="Redyum - E-Pin & Oyun Pazarı">
+              </div>
+              <div class="form-group">
+                <label>Komisyon Oranı (%)</label>
+                <input type="number" id="commissionRateInput" class="form-control" value="5">
+              </div>
+              <div class="form-group">
+                <label>Admin Giriş Şifresini Değiştir</label>
+                <input type="password" id="newPasswordInput" class="form-control" placeholder="Yeni şifrenizi girin">
+              </div>
+              <div class="form-group" style="margin-top: 1.5rem;">
+                <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; color: #fff;">
+                  <input type="checkbox" id="maintenanceToggle" style="width: 18px; height: 18px;"> Bakım Modunu Aktif Et
+                </label>
+              </div>
+              <button type="submit" class="btn btn-secondary" style="margin-top: 1rem;">Ayarları Kaydet</button>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL: ADD LISTING -->
+  <div class="modal-backdrop" id="addListingModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 style="color: var(--primary);">Yeni İlan Ekle</h3>
+        <span class="modal-close" onclick="closeModal('addListingModal')">&times;</span>
+      </div>
+      <form onsubmit="createListing(event)">
+        <div class="form-group">
+          <label>İlan Başlığı</label>
+          <input type="text" id="newTitle" class="form-control" placeholder="Örn: 2850 Valorant VP" required>
+        </div>
+        <div class="form-group">
+          <label>Kategori</label>
+          <select id="newCategory" class="form-control" required>
+            <option value="Valorant VP">Valorant VP</option>
+            <option value="League of Legends RP">League of Legends RP</option>
+            <option value="Steam Cüzdan Kodu">Steam Cüzdan Kodu</option>
+            <option value="PUBG Mobile UC">PUBG Mobile UC</option>
+            <option value="Random Hesap">Random Hesap</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Fiyat (TL)</label>
+          <input type="number" id="newPrice" class="form-control" placeholder="₺" required>
+        </div>
+        <div class="form-group">
+          <label>Satıcı Kullanıcı Adı</label>
+          <input type="text" id="newSeller" class="form-control" value="RedyumStore" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">İlanı Yayınla</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: EDIT PRICE -->
+  <div class="modal-backdrop" id="editPriceModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 style="color: var(--primary);">İlan Fiyatını Düzenle</h3>
+        <span class="modal-close" onclick="closeModal('editPriceModal')">&times;</span>
+      </div>
+      <form onsubmit="savePriceUpdate(event)">
+        <input type="hidden" id="editListingId">
+        <div class="form-group">
+          <label id="editListingTitle">İlan: </label>
+          <input type="number" id="editListingPrice" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Fiyatı Güncelle</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: BALANCE MANAGEMENT -->
+  <div class="modal-backdrop" id="balanceModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 style="color: var(--primary);">Kullanıcı Bakiyesi Yönet</h3>
+        <span class="modal-close" onclick="closeModal('balanceModal')">&times;</span>
+      </div>
+      <form onsubmit="updateUserBalance(event)">
+        <input type="hidden" id="balanceUserId">
+        <p style="margin-bottom: 1rem; color: var(--text-muted);" id="balanceUserName">Kullanıcı: </p>
+        <div class="form-group">
+          <label>Tutar (TL)</label>
+          <input type="number" id="balanceAmount" class="form-control" placeholder="100" required>
+        </div>
+        <div style="display: flex; gap: 0.8rem; margin-top: 1rem;">
+          <button type="submit" class="btn btn-secondary" style="flex:1;" onclick="window.balanceAction = 'add'">Bakiye Ekle</button>
+          <button type="submit" class="btn btn-danger" style="flex:1;" onclick="window.balanceAction = 'deduct'">Bakiye Düş</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toastContainer"></div>
+
+  <script>
+    // System Master Password Storage
+    let currentAdminPassword = localStorage.getItem('redyum_admin_pass') || 'efe457123';
+
+    // Data Stores
+    let listings = [
+      { id: 101, title: '2850 Valorant VP Kodu', category: 'Valorant VP', price: 420, seller: 'GamerStore', status: 'approved' },
+      { id: 102, title: 'TR Yağmacı Karambitli Hesap', category: 'Random Hesap', price: 1150, seller: 'ProGamer', status: 'pending' },
+      { id: 103, title: '100 TL Steam Cüzdan Kodu', category: 'Steam Cüzdan Kodu', price: 100, seller: 'RedyumStore', status: 'approved' },
+      { id: 104, title: '660 UC PUBG Mobile', category: 'PUBG Mobile UC', price: 310, seller: 'FastDelivery', status: 'pending' }
+    ];
+
+    let users = [
+      { id: 1, name: 'GamerStore', email: 'gamer@redyum.com', balance: 2450.00, role: 'Onaylı Satıcı' },
+      { id: 2, name: 'ProGamer', email: 'pro@redyum.com', balance: 320.50, role: 'Normal Üye' },
+      { id: 3, name: 'RedyumStore', email: 'support@redyum.com', balance: 145000.00, role: 'Yönetici' }
+    ];
+
+    let withdrawals = [
+      { id: 501, user: 'GamerStore', iban: 'TR12 0006 2000 0000 1234 5678 90', amount: 500, status: 'pending' },
+      { id: 502, user: 'ProGamer', iban: 'TR98 0001 5000 0000 9876 5432 10', amount: 150, status: 'approved' }
+    ];
+
+    let orders = [
+      { id: 'ORD-8812', user: 'Ahmet_TR', item: '2850 Valorant VP', code: 'VP-9982-XXXX-VALO', amount: 420, status: 'Teslim Edildi' },
+      { id: 'ORD-8813', user: 'Mehmet123', item: '100 TL Steam Cüzdan', code: 'STM-7711-XXXX-KODU', amount: 100, status: 'Teslim Edildi' }
+    ];
+
+    let logs = [
+      { id: 'LOG-901', user: 'Ahmet_TR', detail: '2850 VP Satın Alımı', amount: 420, date: 'Tampon An', status: 'Tamamlandı' },
+      { id: 'LOG-902', user: 'GamerStore', detail: 'Para Çekme Talebi', amount: 500, date: 'Tampon An', status: 'Beklemede' }
+    ];
+
+    // Auth Engine
+    window.onload = function() {
+      if (localStorage.getItem('redyum_logged_in') === 'true') {
+        showPanel();
+      }
+    };
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const inputPass = document.getElementById('adminPasswordInput').value;
+      const errorEl = document.getElementById('loginError');
+      const boxEl = document.getElementById('loginBox');
+
+      if (inputPass === currentAdminPassword) {
+        localStorage.setItem('redyum_logged_in', 'true');
+        showToast('Başarıyla giriş yapıldı!', 'success');
+        showPanel();
+      } else {
+        errorEl.style.display = 'block';
+        boxEl.classList.add('shake');
+        setTimeout(() => boxEl.classList.remove('shake'), 400);
+      }
+    }
+
+    function handleLogout() {
+      localStorage.removeItem('redyum_logged_in');
+      document.getElementById('appWrapper').style.display = 'none';
+      document.getElementById('loginOverlay').style.display = 'flex';
+      document.getElementById('adminPasswordInput').value = '';
+      document.getElementById('loginError').style.display = 'none';
+      showToast('Oturum kapatıldı.');
+    }
+
+    function showPanel() {
+      document.getElementById('loginOverlay').style.display = 'none';
+      document.getElementById('appWrapper').style.display = 'flex';
+      renderAll();
+    }
+
+    // UI Render Engine
+    function renderAll() {
+      renderDashboard();
+      renderListings();
+      renderUsers();
+      renderWithdrawals();
+      renderOrders();
+    }
+
+    function renderDashboard() {
+      const activeListings = listings.filter(l => l.status === 'approved').length;
+      const pendingListings = listings.filter(l => l.status === 'pending').length;
+
+      document.getElementById('statListingsCount').innerText = activeListings;
+      document.getElementById('statPendingCount').innerText = pendingListings;
+      document.getElementById('statUsersCount').innerText = users.length;
+
+      const logsBody = document.getElementById('logsTable');
+      logsBody.innerHTML = logs.map(l => `
+        <tr>
+          <td><b>${l.id}</b></td>
+          <td>${l.user}</td>
+          <td>${l.detail}</td>
+          <td><b>${l.amount} ₺</b></td>
+          <td>${l.date}</td>
+          <td><span class="status-badge status-active">${l.status}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    function renderListings() {
+      const tbody = document.getElementById('listingsTable');
+      tbody.innerHTML = listings.map(l => `
+        <tr>
+          <td>#${l.id}</td>
+          <td><b>${l.title}</b></td>
+          <td>${l.category}</td>
+          <td><b style="color:var(--secondary);">${l.price} ₺</b></td>
+          <td>${l.seller}</td>
+          <td>
+            <span class="status-badge status-${l.status}">
+              ${l.status === 'approved' ? 'Yayında' : l.status === 'pending' ? 'Onay Bekliyor' : 'Reddedildi'}
+            </span>
+          </td>
+          <td>
+            <div class="action-btn-group">
+              ${l.status === 'pending' ? `<button class="btn btn-secondary" style="padding:0.3rem 0.6rem; font-size:0.75rem;" onclick="approveListing(${l.id})">Onayla</button>` : ''}
+              <button class="btn btn-outline" style="padding:0.3rem 0.6rem; font-size:0.75rem;" onclick="openEditPriceModal(${l.id})">Fiyat</button>
+              <button class="btn btn-danger" style="padding:0.3rem 0.6rem; font-size:0.75rem;" onclick="deleteListing(${l.id})">Sil</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function approveListing(id) {
+      const item = listings.find(l => l.id === id);
+      if (item) {
+        item.status = 'approved';
+        showToast('İlan yayına alındı!', 'success');
+        renderAll();
+      }
+    }
+
+    function deleteListing(id) {
+      listings = listings.filter(l => l.id !== id);
+      showToast('İlan silindi.', 'error');
+      renderAll();
+    }
+
+    function openEditPriceModal(id) {
+      const item = listings.find(l => l.id === id);
+      if (item) {
+        document.getElementById('editListingId').value = item.id;
+        document.getElementById('editListingTitle').innerText = `İlan: ${item.title}`;
+        document.getElementById('editListingPrice').value = item.price;
+        openModal('editPriceModal');
+      }
+    }
+
+    function savePriceUpdate(e) {
+      e.preventDefault();
+      const id = parseInt(document.getElementById('editListingId').value);
+      const newPrice = parseFloat(document.getElementById('editListingPrice').value);
+      const item = listings.find(l => l.id === id);
+      if (item) {
+        item.price = newPrice;
+        showToast('İlan fiyatı güncellendi.', 'success');
+        renderListings();
+        closeModal('editPriceModal');
+      }
+    }
+
+    function createListing(e) {
+      e.preventDefault();
+      const newListing = {
+        id: Math.floor(100 + Math.random() * 900),
+        title: document.getElementById('newTitle').value,
+        category: document.getElementById('newCategory').value,
+        price: parseFloat(document.getElementById('newPrice').value),
+        seller: document.getElementById('newSeller').value,
+        status: 'approved'
+      };
+      listings.unshift(newListing);
+      showToast('Yeni ilan başarıyla eklendi.', 'success');
+      renderAll();
+      closeModal('addListingModal');
+    }
+
+    function renderUsers() {
+      const tbody = document.getElementById('usersTable');
+      tbody.innerHTML = users.map(u => `
+        <tr>
+          <td>#${u.id}</td>
+          <td><b>${u.name}</b></td>
+          <td>${u.email}</td>
+          <td><b style="color:var(--secondary);">${u.balance.toFixed(2)} ₺</b></td>
+          <td><span class="status-badge status-active">${u.role}</span></td>
+          <td>
+            <button class="btn btn-primary" style="padding:0.3rem 0.6rem; font-size:0.75rem;" onclick="openBalanceModal(${u.id})">Bakiye Yönet</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function openBalanceModal(userId) {
+      const user = users.find(u => u.id === userId);
+      if (user) {
+        document.getElementById('balanceUserId').value = user.id;
+        document.getElementById('balanceUserName').innerText = `Kullanıcı: ${user.name} (Mevcut: ${user.balance.toFixed(2)} TL)`;
+        openModal('balanceModal');
+      }
+    }
+
+    function updateUserBalance(e) {
+      e.preventDefault();
+      const userId = parseInt(document.getElementById('balanceUserId').value);
+      const amount = parseFloat(document.getElementById('balanceAmount').value);
+      const user = users.find(u => u.id === userId);
+
+      if (user && !isNaN(amount)) {
+        if (window.balanceAction === 'add') {
+          user.balance += amount;
+          showToast(`${amount} TL bakiye eklendi.`, 'success');
+        } else if (window.balanceAction === 'deduct') {
+          user.balance = Math.max(0, user.balance - amount);
+          showToast(`${amount} TL bakiye düşüldü.`, 'error');
+        }
+        renderUsers();
+        closeModal('balanceModal');
+      }
+    }
+
+    function renderWithdrawals() {
+      const tbody = document.getElementById('withdrawalsTable');
+      tbody.innerHTML = withdrawals.map(w => `
+        <tr>
+          <td>#${w.id}</td>
+          <td><b>${w.user}</b></td>
+          <td style="font-family:monospace; color:var(--text-muted);">${w.iban}</td>
+          <td><b>${w.amount} ₺</b></td>
+          <td><span class="status-badge status-${w.status}">${w.status === 'pending' ? 'Bekliyor' : 'Ödendi'}</span></td>
+          <td>
+            ${w.status === 'pending' ? 
+              `<div class="action-btn-group">
+                <button class="btn btn-secondary" style="padding:0.3rem 0.6rem; font-size:0.75rem;" onclick="processWithdrawal(${w.id}, 'approved')">Öde</button>
+                <button class="btn btn-danger" style="padding:0.3rem 0.6rem; font-size:0.75rem;" onclick="processWithdrawal(${w.id}, 'rejected')">Reddet</button>
+               </div>` : 'Tamamlandı'}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function processWithdrawal(id, status) {
+      const item = withdrawals.find(w => w.id === id);
+      if (item) {
+        item.status = status;
+        showToast(status === 'approved' ? 'Ödeme onaylandı.' : 'Çekim talebi reddedildi.');
+        renderWithdrawals();
+      }
+    }
+
+    function renderOrders() {
+      const tbody = document.getElementById('ordersTable');
+      tbody.innerHTML = orders.map(o => `
+        <tr>
+          <td><b>${o.id}</b></td>
+          <td>${o.user}</td>
+          <td>${o.item}</td>
+          <td><code style="background:#0a0a0f; padding:0.2rem 0.5rem; border-radius:4px; color:var(--secondary);">${o.code}</code></td>
+          <td><b>${o.amount} ₺</b></td>
+          <td><span class="status-badge status-active">${o.status}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    function saveSettings(e) {
+      e.preventDefault();
+      const newPass = document.getElementById('newPasswordInput').value;
+      if (newPass) {
+        currentAdminPassword = newPass;
+        localStorage.setItem('redyum_admin_pass', newPass);
+        showToast('Yönetici şifresi güncellendi!', 'success');
+        document.getElementById('newPasswordInput').value = '';
+      } else {
+        showToast('Sistem ayarları kaydedildi.', 'success');
+      }
+    }
+
+    // Tabs Switcher
+    function switchTab(tabId, el) {
+      document.querySelectorAll('.section-tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+      
+      document.getElementById(tabId).classList.add('active');
+      el.classList.add('active');
+
+      const titles = {
+        'dashboardTab': 'Genel Bakış & İstatistikler',
+        'listingsTab': 'İlan Yönetimi & Onay',
+        'balanceTab': 'Bakiye & Çekim Talepleri',
+        'ordersTab': 'Sipariş Geçmişi & Kodlar',
+        'settingsTab': 'Sistem Ayarları'
+      };
+      document.getElementById('pageTitle').innerText = titles[tabId];
+    }
+
+    // Modal Helpers
+    function openModal(id) {
+      document.getElementById(id).style.display = 'flex';
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+
+    // Toast Notification System
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerText = message;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.remove();
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
